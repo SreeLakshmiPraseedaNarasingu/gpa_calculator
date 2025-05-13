@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GPA Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: linear-gradient(135deg, #3b82f6, #06b6d4);
+      text-align: center;
+      color: #fff;
+      transition: background 0.5s;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      display: inline-block;
+      margin-top: 20px;
+    }
+    .subject {
+      margin-bottom: 15px;
+    }
+    label {
+      font-size: 16px;
+    }
+    input, select {
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      margin: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #22c55e;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin: 5px;
+    }
+    button:hover {
+      background: #16a34a;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #fff;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.5s, transform 0.5s;
+    }
+    .visible {
+      opacity: 1 !important;
+      transform: scale(1) !important;
+    }
+    .dark-mode {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #f1f5f9;
+    }
+    .bottom-buttons {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>GPA Calculator</h2>
+<div class="container">
+  <label>Enter number of subjects: </label>
+  <input type="number" id="subjectCount" min="1" required>
+  <button onclick="generateSubjects()">Submit</button>
+  <div id="subjects"></div>
+  <div id="calculateBtn"></div>
+  <div id="result"></div>
+  <div class="bottom-buttons">
+    <button onclick="addSubject()" style="display:none;" id="addSubjectBtn">Add Subject</button>
+    <button onclick="deleteSubject()" style="display:none;" id="deleteSubjectBtn">Delete Subject</button>
+    <button onclick="goBack()" style="display:none;" id="goBackBtn">Go Back</button>
+  </div>
+</div>
+
+<button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+
+<script>
+let subjectIndex = 0;
+function generateSubjects() {
+  let count = document.getElementById('subjectCount').value;
+  let subjectsDiv = document.getElementById('subjects');
+  subjectsDiv.innerHTML = '';
+  subjectIndex = count;
+  for (let i = 1; i <= count; i++) {
+    addSubject(i);
+  }
+  document.getElementById('calculateBtn').innerHTML = `<button onclick="calculateGPA()">Calculate GPA</button>`;
+  document.getElementById('addSubjectBtn').style.display = 'inline-block';
+  document.getElementById('deleteSubjectBtn').style.display = 'inline-block';
+  document.getElementById('goBackBtn').style.display = 'inline-block';
+}
+
+function addSubject(index = ++subjectIndex) {
+  let subjectsDiv = document.getElementById('subjects');
+  let subjectDiv = document.createElement('div');
+  subjectDiv.classList.add('subject');
+  subjectDiv.id = `subject${index}`;
+  subjectDiv.innerHTML = `
+    <label>Subject ${index} - Grade Point: </label>
+    <select id="grade${index}">
+      <option value="10">S</option>
+      <option value="9">A</option>
+      <option value="8">B</option>
+      <option value="7">C</option>
+      <option value="6">D</option>
+      <option value="5">E</option>
+      <option value="0">F</option>
+    </select>
+    <label>Credits: </label>
+    <input type="number" id="credit${index}" required min="1">
+  `;
+  subjectsDiv.appendChild(subjectDiv);
+}
+
+function deleteSubject() {
+  if (subjectIndex > 0) {
+    let subjectDiv = document.getElementById(`subject${subjectIndex}`);
+    if (subjectDiv) {
+      subjectDiv.remove();
+      subjectIndex--;
+    }
+  }
+}
+
+function calculateGPA() {
+  let totalPoints = 0;
+  let totalCredits = 0;
+  for (let i = 1; i <= subjectIndex; i++) {
+    let gradeElem = document.getElementById('grade' + i);
+    let creditElem = document.getElementById('credit' + i);
+    if (!gradeElem || !creditElem) continue;
+    let grade = parseFloat(gradeElem.value);
+    let credit = parseFloat(creditElem.value);
+    if (isNaN(grade) || isNaN(credit)) {
+      alert(`Please enter valid numbers for Subject ${i}`);
+      return;
+    }
+    totalPoints += grade * credit;
+    totalCredits += credit;
+  }
+  let gpa = totalPoints / totalCredits;
+  gpa = Math.round(gpa * 100) / 100;
+  let resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = `Your GPA is: <b>${gpa}</b>`;
+  resultDiv.classList.add('visible');
+}
+
+function goBack() {
+  document.getElementById('subjects').innerHTML = '';
+  document.getElementById('calculateBtn').innerHTML = '';
+  document.getElementById('result').innerHTML = '';
+  subjectIndex = 0;
+  document.getElementById('addSubjectBtn').style.display = 'none';
+  document.getElementById('deleteSubjectBtn').style.display = 'none';
+  document.getElementById('goBackBtn').style.display = 'none';
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+}
+</script>
+
+</body>
+</html>
+
